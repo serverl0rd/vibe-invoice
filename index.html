@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ServerLord's Vibe Invoice Generator</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <meta http-equiv="refresh" content="0; url=Vibe Invoice.html">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            color: white;
+            text-align: center;
+        }
+        .loader {
+            margin-top: 20px;
+        }
+        .spinner {
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        a {
+            color: #E8F5E8;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1>ServerLord's Vibe Invoice Generator</h1>
+        <p>Redirecting you to the invoice generator...</p>
+        <div class="loader">
+            <div class="spinner"></div>
+        </div>
+        <p style="margin-top: 30px;">
+            If you're not redirected automatically, 
+            <a href="Vibe Invoice.html">click here</a>.
+        </p>
+        <p style="margin-top: 20px; font-size: 14px;">
+            Created by <a href="https://serverlord.in" target="_blank">@ServerLord</a> 
+            (<a href="https://atharvakulkarni.link" target="_blank">Atharva Kulkarni</a>)
+        </p>
+    </div>
+
+    <script>
+        // Fallback redirect in case meta refresh doesn't work
+        setTimeout(function() {
+            window.location.href = 'Vibe Invoice.html';
+        }, 1000);
+    </script>
+</body>
+</html>
