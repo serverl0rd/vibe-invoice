@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice Generator</title>
+    <title>ServerLord's Vibe Invoice Generator</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -161,8 +161,26 @@
             text-align: center;
         }
         
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            color: #666;
+        }
+        
+        .footer a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
         @media print {
-            .container, .action-buttons {
+            .container, .action-buttons, .footer {
                 display: none;
             }
             
@@ -203,7 +221,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Invoice Generator</h1>
+        <h1>ServerLord's Vibe Invoice Generator</h1>
         
         <div class="form-section">
             <h2>Seller Information</h2>
@@ -471,6 +489,11 @@
             <button type="button" onclick="generateInvoice()">Generate Invoice</button>
             <button type="button" onclick="clearForm()">Clear Form</button>
         </div>
+    </div>
+    
+    <div class="footer">
+        <p>Created by <a href="https://serverlord.in" target="_blank">@ServerLord</a> (<a href="https://atharvakulkarni.link" target="_blank">Atharva Kulkarni</a>)</p>
+        <p>Professional Invoice Generator for Indian Businesses with GST Support</p>
     </div>
     
     <div id="preview">

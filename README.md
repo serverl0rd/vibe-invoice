@@ -1,6 +1,8 @@
-# Vibe Invoice Generator
+# ServerLord's Vibe Invoice Generator
 
 A professional, standalone HTML-based invoice generator with GST support for Indian businesses. This tool provides a complete solution for creating, previewing, and printing invoices without any external dependencies.
+
+**Created by [@ServerLord](https://serverlord.in) ([Atharva Kulkarni](https://atharvakulkarni.link))**
 
 ## Features
 
@@ -107,6 +109,10 @@ The invoice can be easily customized by editing the HTML file:
 ## License
 
 This project is open source and available for personal and commercial use.
+
+## Creator
+
+**[@ServerLord](https://serverlord.in)** - [Atharva Kulkarni](https://atharvakulkarni.link)
 
 ## Support
 
