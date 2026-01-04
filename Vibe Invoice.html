@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        
+        h2 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        
+        .col {
+            flex: 1;
+            min-width: 200px;
+            padding-right: 10px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #f2f2f2;
+        }
+        
+        .action-buttons {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0 5px;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        #preview {
+            display: none;
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        #preview table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 2px solid #000;
+        }
+        
+        #preview th, #preview td {
+            border: 2px solid #000;
+            padding: 4px;
+        }
+        
+        #preview td p {
+            margin: 2px 0;
+        }
+        
+        .preview-section {
+            margin-bottom: 0;
+        }
+        
+        #preview {
+            border: 2px solid #000;
+        }
+        
+        .preview-header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .preview-header h1 {
+            margin-bottom: 2px;
+            margin-top: 0;
+        }
+        
+        .preview-header p {
+            margin: 2px 0;
+        }
+        
+        .preview-section {
+            margin-bottom: 15px;
+        }
+        
+        .preview-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .bank-details {
+            width: 60%;
+        }
+        
+        .signature {
+            width: 35%;
+            text-align: center;
+        }
+        
+        @media print {
+            .container, .action-buttons {
+                display: none;
+            }
+            
+            #preview {
+                display: block !important;
+                box-shadow: none;
+                margin: 0;
+                padding: 10mm;
+            }
+            
+            body {
+                margin: 0;
+                padding: 0;
+                background: white;
+            }
+            
+            @page {
+                size: A4;
+                margin: 0;
+            }
+            
+            table {
+                page-break-inside: avoid;
+            }
+            
+            .preview-section, .preview-header, .preview-footer {
+                page-break-inside: avoid;
+            }
+            
+            /* Ensure correct sizing for A4 paper */
+            html, body, #preview {
+                width: 210mm;
+                height: 297mm;
+                font-size: 12pt;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Invoice Generator</h1>
+        
+        <div class="form-section">
+            <h2>Seller Information</h2>
+            <div class="row">
+                <div class="col">
+                    <label for="sellerName">Full Name:</label>
+                    <input type="text" id="sellerName" placeholder="Enter full name">
+                </div>
+                <div class="col">
+                    <label for="sellerAddress1">Address Line 1:</label>
+                    <input type="text" id="sellerAddress1" placeholder="Enter address line 1">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="sellerAddress2">Address Line 2:</label>
+                    <input type="text" id="sellerAddress2" placeholder="Enter address line 2">
+                </div>
+                <div class="col">
+                    <label for="sellerEmail">Email:</label>
+                    <input type="email" id="sellerEmail" placeholder="Enter email address">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="sellerGSTIN">GSTIN:</label>
+                    <input type="text" id="sellerGSTIN" placeholder="Enter GSTIN">
+                </div>
+                <div class="col">
+                    <label for="sellerContact">Contact Number:</label>
+                    <input type="text" id="sellerContact" placeholder="Enter contact number">
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <h2>Invoice Details</h2>
+            <div class="row">
+                <div class="col">
+                    <label for="reverseCharge">Reverse Charge</label>
+                    <select id="reverseCharge">
+                        <option value="No">No</option>
+                        <option value="Yes">Yes</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label for="poNo">PO No.</label>
+                    <input type="text" id="poNo" placeholder="Enter PO number">
+                </div>
+                <div class="col">
+                    <label for="vendorCode">Vendor Code</label>
+                    <input type="text" id="vendorCode" placeholder="Enter vendor code">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="invoiceNo">Invoice No.</label>
+                    <input type="text" id="invoiceNo" placeholder="Enter invoice number">
+                </div>
+                <div class="col">
+                    <label for="poDate">PO Date</label>
+                    <input type="date" id="poDate">
+                </div>
+                <div class="col">
+                    <label for="transportMode">Transportation Mode</label>
+                    <input type="text" id="transportMode" placeholder="Enter transport mode">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="invoiceDate">Invoice Date</label>
+                    <input type="date" id="invoiceDate">
+                </div>
+                <div class="col">
+                    <label for="dateOfSupply">Date of Supply</label>
+                    <input type="date" id="dateOfSupply">
+                </div>
+                <div class="col">
+                    <label for="vehicleNo">Vehicle No.</label>
+                    <input type="text" id="vehicleNo" placeholder="Enter vehicle number">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col" style="display: flex; gap: 0px;">
+                    <div style="flex: 1; position: relative; padding-right: 20px;">
+                        <label for="sellerState">State</label>
+                        <input type="text" id="sellerState" placeholder="Enter state">
+                        <div style="position: absolute; top: 25px; right: 0; bottom: 0; border-right: 2px solid #000; height: 70%;"></div>
+                    </div>
+                    <div style="flex: 1; padding-left: 10px;">
+                        <label for="sellerStateCode">State Code</label>
+                        <input type="text" id="sellerStateCode" placeholder="Enter state code">
+                    </div>
+                </div>
+                <div class="col">
+                    <label for="placeOfSupply">Place of Supply</label>
+                    <input type="text" id="placeOfSupply" placeholder="Enter place of supply">
+                </div>
+                <div class="col">
+                    <label for="lrNo">LR No.</label>
+                    <input type="text" id="lrNo" placeholder="Enter LR number">
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <h2>Customer Details</h2>
+            <div class="row">
+                <div class="col">
+                    <label for="customerName">Name</label>
+                    <input type="text" id="customerName" placeholder="Enter customer name">
+                </div>
+                <div class="col">
+                    <label for="customerGSTIN">GSTIN Number</label>
+                    <input type="text" id="customerGSTIN" placeholder="Enter customer GSTIN">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="customerAddress1">Address Line 1</label>
+                    <input type="text" id="customerAddress1" placeholder="Enter customer address line 1">
+                </div>
+                <div class="col">
+                    <label for="customerAddress2">Address Line 2</label>
+                    <input type="text" id="customerAddress2" placeholder="Enter customer address line 2">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="customerState">State</label>
+                    <input type="text" id="customerState" placeholder="Enter customer state">
+                </div>
+                <div class="col">
+                    <label for="customerStateCode">State Code</label>
+                    <input type="text" id="customerStateCode" placeholder="Enter customer state code">
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <h2>Service Details</h2>
+            <table id="services">
+                <thead>
+                    <tr>
+                        <th>S.No.</th>
+                        <th>Description</th>
+                        <th>SAC</th>
+                        <th>Upto previous Bill</th>
+                        <th>This Bill</th>
+                        <th>Total Amount</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td><input type="text" class="description" placeholder="Enter service description"></td>
+                        <td><input type="text" class="sac" placeholder="Enter SAC code"></td>
+                        <td><input type="number" class="prevBill" value="0" step="0.01"></td>
+                        <td><input type="number" class="thisBill" value="0" step="0.01"></td>
+                        <td class="totalAmount">0.00</td>
+                        <td><button type="button" onclick="removeRow(this)">Remove</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button type="button" onclick="addServiceRow()">Add Service</button>
+        </div>
+        
+        <div class="form-section">
+            <h2>Tax Details</h2>
+            <div class="row">
+                <div class="col">
+                    <label for="taxType">Tax Type</label>
+                    <select id="taxType">
+                        <option value="IGST">IGST</option>
+                        <option value="CGST & SGST">CGST & SGST</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label for="taxRate">Tax Rate (%)</label>
+                    <input type="number" id="taxRate" value="18" min="0" max="100">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label>Total Before Tax</label>
+                    <input type="text" id="totalBeforeTax" value="0.00" readonly>
+                </div>
+                <div class="col">
+                    <label>Tax Amount</label>
+                    <input type="text" id="taxAmount" value="0.00" readonly>
+                </div>
+                <div class="col">
+                    <label>Total After Tax</label>
+                    <input type="text" id="totalAfterTax" value="0.00" readonly>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <h2>Bank Details</h2>
+            <div class="row">
+                <div class="col">
+                    <label for="bankName">Bank Name</label>
+                    <input type="text" id="bankName" placeholder="Enter bank name">
+                </div>
+                <div class="col">
+                    <label for="branchAddress1">Branch Address Line 1</label>
+                    <input type="text" id="branchAddress1" placeholder="Enter branch address line 1">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="branchAddress2">Branch Address Line 2</label>
+                    <input type="text" id="branchAddress2" placeholder="Enter branch address line 2">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="accountNo">Account No.</label>
+                    <input type="text" id="accountNo" placeholder="Enter account number">
+                </div>
+                <div class="col">
+                    <label for="ifscCode">IFSC Code</label>
+                    <input type="text" id="ifscCode" placeholder="Enter IFSC code">
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <h2>Signature Details</h2>
+            <div class="row">
+                <div class="col">
+                    <label for="signatureUpload">Upload Signature Image:</label>
+                    <input type="file" id="signatureUpload" accept="image/*" onchange="previewSignature(event)">
+                    <div style="margin-top: 10px; border: 1px dashed #ccc; padding: 10px; height: 100px; display: flex; justify-content: center; align-items: center;">
+                        <img id="signaturePreview" src="" alt="Signature Preview" style="max-width: 100%; max-height: 100%; display: none;">
+                        <span id="uploadPrompt">Upload your signature image</span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="signatoryName">Name:</label>
+                    <input type="text" id="signatoryName" placeholder="Name of Authorised Signatory">
+                </div>
+                <div class="col">
+                    <label for="signatoryDesignation">Designation:</label>
+                    <input type="text" id="signatoryDesignation" placeholder="Designation of Authorised Signatory">
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <h2>Terms & Conditions</h2>
+            <div class="row">
+                <div class="col" style="width: 100%;">
+                    <label for="termsConditions">Terms & Conditions</label>
+                    <textarea id="termsConditions" rows="5" style="width: 100%; resize: vertical;" placeholder="Enter terms and conditions"></textarea>
+                </div>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button type="button" onclick="generateInvoice()">Generate Invoice</button>
+            <button type="button" onclick="clearForm()">Clear Form</button>
+        </div>
+    </div>
+    
+    <div id="preview">
+        <!-- The invoice preview will be inserted here -->
+    </div>
+    
+    <script>
+        // Initialize the form
+        document.addEventListener('DOMContentLoaded', function() {
+            calculateTotals();
+            
+            // Add event listeners to recalculate totals when bill amounts change
+            document.querySelectorAll('.thisBill, .prevBill').forEach(input => {
+                input.addEventListener('input', calculateTotals);
+            });
+            
+            document.getElementById('taxRate').addEventListener('input', calculateTax);
+            document.getElementById('taxType').addEventListener('change', calculateTax);
+        });
+        
+        function previewSignature(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('signaturePreview');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    document.getElementById('uploadPrompt').style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function addServiceRow() {
+            const tbody = document.querySelector('#services tbody');
+            const newRow = document.createElement('tr');
+            
+            newRow.innerHTML = `
+                <td></td>
+                <td><input type="text" class="description" placeholder="Enter service description"></td>
+                <td><input type="text" class="sac" placeholder="Enter SAC code"></td>
+                <td><input type="number" class="prevBill" value="0" step="0.01"></td>
+                <td><input type="number" class="thisBill" value="0" step="0.01"></td>
+                <td class="totalAmount">0.00</td>
+                <td><button type="button" onclick="removeRow(this)">Remove</button></td>
+            `;
+            
+            tbody.appendChild(newRow);
+            
+            // Add event listeners to new inputs
+            newRow.querySelectorAll('.thisBill, .prevBill').forEach(input => {
+                input.addEventListener('input', calculateTotals);
+            });
+            
+            updateSerialNumbers();
+        }
+        
+        function removeRow(button) {
+            const row = button.closest('tr');
+            row.remove();
+            calculateTotals();
+            updateSerialNumbers();
+        }
+        
+        function updateSerialNumbers() {
+            const rows = document.querySelectorAll('#services tbody tr');
+            rows.forEach((row, index) => {
+                const cells = row.cells;
+                cells[0].textContent = index + 1;
+            });
+        }
+        
+        function calculateTotals() {
+            const rows = document.querySelectorAll('#services tbody tr');
+            let totalBeforeTax = 0;
+            
+            rows.forEach(row => {
+                const prevBill = parseFloat(row.querySelector('.prevBill').value) || 0;
+                const thisBill = parseFloat(row.querySelector('.thisBill').value) || 0;
+                const total = prevBill + thisBill;
+                
+                row.querySelector('.totalAmount').textContent = total.toFixed(2);
+                totalBeforeTax += thisBill;
+            });
+            
+            document.getElementById('totalBeforeTax').value = totalBeforeTax.toFixed(2);
+            calculateTax();
+        }
+        
+        function calculateTax() {
+            const totalBeforeTax = parseFloat(document.getElementById('totalBeforeTax').value);
+            const taxRate = parseFloat(document.getElementById('taxRate').value);
+            const taxAmount = totalBeforeTax * (taxRate / 100);
+            const totalAfterTax = totalBeforeTax + taxAmount;
+            
+            document.getElementById('taxAmount').value = taxAmount.toFixed(2);
+            document.getElementById('totalAfterTax').value = totalAfterTax.toFixed(2);
+        }
+        
+        function clearForm() {
+            if (confirm("Are you sure you want to clear the form? All data will be lost.")) {
+                document.getElementById('preview').style.display = 'none';
+                document.querySelectorAll('input:not([type="file"])').forEach(input => {
+                    if (input.type === 'number' && (input.classList.contains('prevBill') || input.classList.contains('thisBill'))) {
+                        input.value = '0';
+                    } else if (input.type === 'number' && input.id === 'taxRate') {
+                        input.value = '18';
+                    } else if (input.id === 'totalBeforeTax' || input.id === 'taxAmount' || input.id === 'totalAfterTax') {
+                        input.value = '0.00';
+                    } else {
+                        input.value = '';
+                    }
+                });
+                
+                document.getElementById('termsConditions').value = '';
+                
+                // Reset signature preview
+                document.getElementById('signaturePreview').src = '';
+                document.getElementById('signaturePreview').style.display = 'none';
+                document.getElementById('uploadPrompt').style.display = 'block';
+                
+                // Reset the services table
+                const tbody = document.querySelector('#services tbody');
+                tbody.innerHTML = `
+                    <tr>
+                        <td>1</td>
+                        <td><input type="text" class="description" placeholder="Enter service description"></td>
+                        <td><input type="text" class="sac" placeholder="Enter SAC code"></td>
+                        <td><input type="number" class="prevBill" value="0" step="0.01"></td>
+                        <td><input type="number" class="thisBill" value="0" step="0.01"></td>
+                        <td class="totalAmount">0.00</td>
+                        <td><button type="button" onclick="removeRow(this)">Remove</button></td>
+                    </tr>
+                `;
+                
+                // Add event listeners to new inputs
+                document.querySelectorAll('.thisBill, .prevBill').forEach(input => {
+                    input.addEventListener('input', calculateTotals);
+                });
+            }
+        }
+        
+        function generateInvoice() {
+            // Calculate totals one more time to ensure accuracy
+            calculateTotals();
+            
+            // Get values from the form
+            const sellerName = document.getElementById('sellerName').value;
+            const sellerAddress1 = document.getElementById('sellerAddress1').value;
+            const sellerAddress2 = document.getElementById('sellerAddress2').value;
+            const sellerEmail = document.getElementById('sellerEmail').value;
+            const sellerGSTIN = document.getElementById('sellerGSTIN').value;
+            const sellerContact = document.getElementById('sellerContact').value;
+            
+            const invoiceNo = document.getElementById('invoiceNo').value;
+            const invoiceDate = formatDate(document.getElementById('invoiceDate').value);
+            const reverseCharge = document.getElementById('reverseCharge').value;
+            const poNo = document.getElementById('poNo').value;
+            const poDate = formatDate(document.getElementById('poDate').value);
+            const dateOfSupply = formatDate(document.getElementById('dateOfSupply').value);
+            const sellerState = document.getElementById('sellerState').value;
+            const sellerStateCode = document.getElementById('sellerStateCode').value;
+            const placeOfSupply = document.getElementById('placeOfSupply').value;
+            const vendorCode = document.getElementById('vendorCode').value;
+            const transportMode = document.getElementById('transportMode').value;
+            const vehicleNo = document.getElementById('vehicleNo').value;
+            const lrNo = document.getElementById('lrNo').value;
+            
+            const customerName = document.getElementById('customerName').value;
+            const customerGSTIN = document.getElementById('customerGSTIN').value;
+            const customerAddress1 = document.getElementById('customerAddress1').value;
+            const customerAddress2 = document.getElementById('customerAddress2').value;
+            const customerState = document.getElementById('customerState').value;
+            const customerStateCode = document.getElementById('customerStateCode').value;
+            
+            const totalBeforeTax = document.getElementById('totalBeforeTax').value;
+            const taxType = document.getElementById('taxType').value;
+            const taxRate = document.getElementById('taxRate').value;
+            const taxAmount = document.getElementById('taxAmount').value;
+            const totalAfterTax = document.getElementById('totalAfterTax').value;
+            
+            const bankName = document.getElementById('bankName').value;
+            const branchAddress1 = document.getElementById('branchAddress1').value;
+            const branchAddress2 = document.getElementById('branchAddress2').value;
+            const accountNo = document.getElementById('accountNo').value;
+            const ifscCode = document.getElementById('ifscCode').value;
+            
+            // Get signature details
+            const signatureImage = document.getElementById('signaturePreview').src;
+            const hasSignature = document.getElementById('signaturePreview').style.display !== 'none';
+            const signatoryName = document.getElementById('signatoryName').value;
+            const signatoryDesignation = document.getElementById('signatoryDesignation').value;
+            
+            // Generate service rows
+            let serviceRows = '';
+            const rows = document.querySelectorAll('#services tbody tr');
+            rows.forEach(row => {
+                const sNo = row.cells[0].textContent;
+                const description = row.querySelector('.description').value;
+                const sac = row.querySelector('.sac').value;
+                const prevBill = row.querySelector('.prevBill').value;
+                const thisBill = row.querySelector('.thisBill').value;
+                const totalAmount = row.querySelector('.totalAmount').textContent;
+                
+                serviceRows += `
+                    <tr>
+                        <td style="border: 2px solid #000; border-left: none; border-top: none; padding: 4px; text-align: center;">${sNo}</td>
+                        <td style="border: 2px solid #000; border-top: none; padding: 4px;">${description}</td>
+                        <td style="border: 2px solid #000; border-top: none; padding: 4px; text-align: center;">${sac}</td>
+                        <td style="border: 2px solid #000; border-top: none; padding: 4px; text-align: right;">${prevBill}</td>
+                        <td style="border: 2px solid #000; border-top: none; padding: 4px; text-align: right;">${numberWithCommas(thisBill)}</td>
+                        <td style="border: 2px solid #000; border-right: none; border-top: none; padding: 4px; text-align: right;">${numberWithCommas(totalAmount)}</td>
+                    </tr>
+                `;
+            });
+            
+            // Add tax rows
+            serviceRows += `
+                <tr>
+                    <td style="border: 2px solid #000; border-left: none; border-top: none; padding: 4px;"></td>
+                    <td style="border: 2px solid #000; border-top: none; padding: 4px;">Add: ${taxType} @ ${taxRate}%</td>
+                    <td style="border: 2px solid #000; border-top: none; padding: 4px;"></td>
+                    <td style="border: 2px solid #000; border-top: none; padding: 4px; text-align: right;">0</td>
+                    <td style="border: 2px solid #000; border-top: none; padding: 4px; text-align: right;">${numberWithCommas(taxAmount)}</td>
+                    <td style="border: 2px solid #000; border-right: none; border-top: none; padding: 4px; text-align: right;">${numberWithCommas(taxAmount)}</td>
+                </tr>
+                <tr>
+                    <td style="border: 2px solid #000; border-left: none; border-top: none; padding: 4px;"></td>
+                    <td style="border: 2px solid #000; border-top: none; padding: 4px;">Tax Amount: ${taxType.includes('&') ? 'CGST+SGST' : 'GST'}</td>
+                    <td style="border: 2px solid #000; border-top: none; padding: 4px;"></td>
+                    <td style="border: 2px solid #000; border-top: none; padding: 4px; text-align: right;">0</td>
+                    <td style="border: 2px solid #000; border-top: none; padding: 4px; text-align: right;">${numberWithCommas(taxAmount)}</td>
+                    <td style="border: 2px solid #000; border-right: none; border-top: none; padding: 4px; text-align: right;">${numberWithCommas(taxAmount)}</td>
+                </tr>
+                <tr>
+                    <td style="border: 2px solid #000; border-left: none; border-top: none; padding: 4px;"></td>
+                    <td style="border: 2px solid #000; border-top: none; padding: 4px;">Total Amount After Tax</td>
+                    <td style="border: 2px solid #000; border-top: none; padding: 4px;"></td>
+                    <td style="border: 2px solid #000; border-top: none; padding: 4px; text-align: right;">0</td>
+                    <td style="border: 2px solid #000; border-top: none; padding: 4px; text-align: right;">${numberWithCommas(totalAfterTax)}</td>
+                    <td style="border: 2px solid #000; border-right: none; border-top: none; padding: 4px; text-align: right;">${numberWithCommas(totalAfterTax)}</td>
+                </tr>
+            `;
+            
+            // Generate HTML for the invoice
+            const invoiceHTML = `
+                <div class="preview-header" style="border: 2px solid #000; padding: 5px; margin-bottom: 0;">
+                    <h1 style="margin-top: 5px;">${sellerName}</h1>
+                    <p>${sellerAddress1}</p>
+                    <p>${sellerAddress2}</p>
+                    <p>E-Mail: ${sellerEmail}</p>
+                    <p style="margin-bottom: 5px;">GSTIN: ${sellerGSTIN}, Contact No.: ${sellerContact}</p>
+                </div>
+                
+                <div style="text-align: center; border: 2px solid #000; border-top: none; margin-bottom: 0; display: flex; justify-content: center; align-items: center; height: 34px; border-bottom: 2px solid #000;">
+                    <h2 style="margin: 0; padding: 0; line-height: 1;">TAX INVOICE</h2>
+                </div>
+                    <table style="border-collapse: collapse; width: 100%; margin-bottom: 0; border-top: none;">
+                        <tr>
+                            <td style="width: 33%; border: 2px solid #000; padding: 4px;">Reverse Charge (Yes/No): ${reverseCharge}</td>
+                            <td style="width: 33%; border: 2px solid #000; padding: 4px;">PO No.: ${poNo}</td>
+                            <td style="width: 33%; border: 2px solid #000; padding: 4px;">Vendor Code: ${vendorCode}</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 2px solid #000; padding: 4px;">Invoice No.: ${invoiceNo}</td>
+                            <td style="border: 2px solid #000; padding: 4px;">PO Date.: ${poDate}</td>
+                            <td style="border: 2px solid #000; padding: 4px;">Transportation Mode: ${transportMode}</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 2px solid #000; padding: 4px;">Invoice Date: ${invoiceDate}</td>
+                            <td style="border: 2px solid #000; padding: 4px;">Date of Supply: ${dateOfSupply}</td>
+                            <td style="border: 2px solid #000; padding: 4px;">Vehicle No.: ${vehicleNo}</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 2px solid #000; padding: 0; position: relative; height: 100%;">
+                                <div style="display: flex; width: 100%; height: 100%;">
+                                    <div style="width: 60%; padding: 4px;">State: ${sellerState}</div>
+                                    <div style="width: 40%; padding: 4px; border-left: 2px solid #000; height: 100%;">State code: ${sellerStateCode}</div>
+                                </div>
+                            </td>
+                            <td style="border: 2px solid #000; padding: 4px;">Place of Supply: ${placeOfSupply}</td>
+                            <td style="border: 2px solid #000; padding: 4px;">LR No.: ${lrNo}</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div style="margin: 0; border: none;">
+                    <table style="border-collapse: collapse; width: 100%; margin: 0; border: none;">
+                        <tr>
+                            <td style="text-align: center; border: 2px solid #000; border-top: 2px solid #000; font-weight: bold; padding: 4px; width: 50%;">
+                                Details of Receiver / Billed to
+                            </td>
+                            <td style="text-align: center; border: 2px solid #000; border-top: 2px solid #000; border-left: none; font-weight: bold; padding: 4px; width: 50%;">
+                                Details of consignee / Shipped to
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="border: 2px solid #000; padding: 4px; vertical-align: top; height: 135px; position: relative;">
+                                <div style="margin-bottom: 30px;">
+                                    <p style="margin: 2px 0;">Name: ${customerName}</p>
+                                    <p style="margin: 2px 0;">Address: ${customerAddress1}</p>
+                                    <p style="margin: 2px 0;">${customerAddress2}</p>
+                                    <p style="margin: 2px 0;">GSTIN Number: ${customerGSTIN}</p>
+                                </div>
+                                <div style="position: absolute; bottom: 0; left: 0; right: 0; border-top: 2px solid #000; display: flex; width: 100%;">
+                                    <div style="width: 50%; padding: 4px; position: relative; border-right: 2px solid #000;">
+                                        State: ${customerState}
+                                    </div>
+                                    <div style="width: 50%; padding: 4px;">
+                                        State Code: ${customerStateCode}
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="border: 2px solid #000; padding: 4px; vertical-align: top; height: 135px; position: relative;">
+                                <div style="margin-bottom: 30px;">
+                                    <p style="margin: 2px 0;">Name: ${customerName}</p>
+                                    <p style="margin: 2px 0;">Address: ${customerAddress1}</p>
+                                    <p style="margin: 2px 0;">${customerAddress2}</p>
+                                    <p style="margin: 2px 0;">GSTIN Number: ${customerGSTIN}</p>
+                                </div>
+                                <div style="position: absolute; bottom: 0; left: 0; right: 0; border-top: 2px solid #000; display: flex; width: 100%;">
+                                    <div style="width: 50%; padding: 4px; position: relative; border-right: 2px solid #000;">
+                                        State: ${customerState}
+                                    </div>
+                                    <div style="width: 50%; padding: 4px;">
+                                        State Code: ${customerStateCode}
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div style="margin: 0;">
+                    <table style="border-collapse: collapse; width: 100%; margin: 0; border: none;">
+                        <thead>
+                            <tr>
+                                <th style="border: 2px solid #000; border-left: none; padding: 4px; text-align: center; width: 5%;">S.No.</th>
+                                <th style="border: 2px solid #000; padding: 4px; text-align: center; width: 40%;">Description</th>
+                                <th style="border: 2px solid #000; padding: 4px; text-align: center; width: 10%;">SAC</th>
+                                <th style="border: 2px solid #000; padding: 4px; text-align: center; width: 15%;">Upto previous Bill</th>
+                                <th style="border: 2px solid #000; padding: 4px; text-align: center; width: 15%;">This Bill</th>
+                                <th style="border: 2px solid #000; border-right: none; padding: 4px; text-align: center; width: 15%;">Total Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${serviceRows}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div style="margin: 0; border-left: 2px solid #000; border-right: 2px solid #000; border-bottom: none; border-top: 2px solid #000;">
+                    <p style="margin: 5px; font-weight: bold;">Total Invoice Amount in Words:</p>
+                    <p style="margin: 5px 5px 5px 5px;">${numberToWords(parseFloat(totalAfterTax))} Only</p>
+                </div>
+                
+                <div style="margin: 0; border-left: 2px solid #000; border-right: 2px solid #000; border-bottom: 2px solid #000; border-top: 2px solid #000;">
+                    <div style="text-align: center; padding: 5px 0; border-bottom: 2px solid #000;">
+                        <span style="font-weight: bold; font-size: 16px;">: Bank Details :</span>
+                    </div>
+                    <table style="border-collapse: collapse; width: 100%; margin: 0; border: none;">
+                        <tr>
+                            <td width="20%" style="border: 2px solid #000; border-left: none; border-top: none; padding: 4px;">Bank Name:</td>
+                            <td style="border: 2px solid #000; border-right: none; border-top: none; padding: 4px;">${bankName}</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 2px solid #000; border-left: none; border-top: none; padding: 4px;">Branch Address:</td>
+                            <td style="border: 2px solid #000; border-right: none; border-top: none; padding: 4px;">${branchAddress1}</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 2px solid #000; border-left: none; border-top: none; padding: 4px;"></td>
+                            <td style="border: 2px solid #000; border-right: none; border-top: none; padding: 4px;">${branchAddress2}</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 2px solid #000; border-left: none; border-top: none; padding: 4px;">Account No.:</td>
+                            <td style="border: 2px solid #000; border-right: none; border-top: none; padding: 4px;">${accountNo}</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 2px solid #000; border-left: none; border-top: none; border-bottom: 2px solid #000; padding: 4px;">IFSC Code:</td>
+                            <td style="border: 2px solid #000; border-right: none; border-top: none; border-bottom: 2px solid #000; padding: 4px;">${ifscCode}</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div style="margin: 0; border-top: 2px solid #000;">
+                    <table style="border-collapse: collapse; width: 100%; margin: 0; border: none;">
+                        <tr>
+                            <td style="border: 2px solid #000; border-top: none; padding: 4px; width: 50%; vertical-align: top; position: relative;">
+                                <p style="font-weight: bold; text-align: center;">Terms and Conditions</p>
+                                <p style="white-space: pre-line; min-height: 160px; padding-left: 10px;">${document.getElementById('termsConditions').value || ''}</p>
+                            </td>
+                            <td style="border: 2px solid #000; border-left: none; border-top: none; padding: 4px; width: 50%; vertical-align: top; height: 240px;">
+                                <div style="height: 100%; display: flex; flex-direction: column;">
+                                    <p style="text-align: center; margin-bottom: 10px;">Certified that the particulars given above are true and correct.</p>
+                                    <p style="text-align: center; font-weight: bold; margin-bottom: 10px;">${sellerName}</p>
+                                    
+                                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                        ${hasSignature ? 
+                                            `<img src="${signatureImage}" alt="Signature" style="max-height: 60px; max-width: 180px; margin: 10px 0;">` : 
+                                            `<p style="margin: 20px 0;">Signature: ___________________</p>`
+                                        }
+                                        <p style="text-align: center; font-weight: bold; margin: 5px 0;">Authorised Signatory</p>
+                                    </div>
+                                    
+                                    <div style="margin-top: auto;">
+                                        <div style="border-top: 2px solid #000; padding: 4px; margin: 0;">Name: ${signatoryName || ''}</div>
+                                        <div style="border-top: 2px solid #000; padding: 4px; margin: 0;">Designation: ${signatoryDesignation || ''}</div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="action-buttons" style="margin-top: 20px;">
+                    <button onclick="window.print()">Print Invoice</button>
+                    <button onclick="document.getElementById('preview').style.display = 'none';">Back to Editor</button>
+                </div>
+            `;
+            
+            // Display the preview
+            document.getElementById('preview').innerHTML = invoiceHTML;
+            document.getElementById('preview').style.display = 'block';
+            
+            // Scroll to preview
+            document.getElementById('preview').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            
+            const date = new Date(dateStr);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            
+            return `${day}/${month}/${year}`;
+        }
+        
+        function numberWithCommas(x) {
+            return parseFloat(x).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        
+        function numberToWords(num) {
+            if (num === 0 || isNaN(num)) return 'Zero';
+            
+            const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 
+                          'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 
+                          'Seventeen', 'Eighteen', 'Nineteen'];
+            const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+            
+            // Helper function to convert numbers less than 1000
+            function convert_lt_thousand(n) {
+                if (n === 0) return '';
+                else if (n < 20) return ones[n];
+                else if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + ones[n % 10] : '');
+                else return ones[Math.floor(n / 100)] + ' Hundred' + (n % 100 !== 0 ? ' ' + convert_lt_thousand(n % 100) : '');
+            }
+            
+            // Indian number system: lakhs and crores
+            let result = '';
+            let fraction = Math.round((num - Math.floor(num)) * 100);
+            num = Math.floor(num);
+            
+            if (num >= 10000000) {
+                result = convert_lt_thousand(Math.floor(num / 10000000)) + ' Crore ';
+                num %= 10000000;
+            }
+            
+            if (num >= 100000) {
+                result += convert_lt_thousand(Math.floor(num / 100000)) + ' Lac ';
+                num %= 100000;
+            }
+            
+            if (num >= 1000) {
+                result += convert_lt_thousand(Math.floor(num / 1000)) + ' Thousand ';
+                num %= 1000;
+            }
+            
+            if (num > 0) {
+                result += convert_lt_thousand(num);
+            }
+            
+            if (fraction > 0) {
+                result += ' and ' + convert_lt_thousand(fraction) + ' Paise';
+            }
+            
+            return result.trim() || 'Zero';
+        }
+    </script>
+</body>
+</html>
