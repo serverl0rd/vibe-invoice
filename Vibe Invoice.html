@@ -489,6 +489,9 @@
         <div class="action-buttons">
             <button type="button" onclick="generateInvoice()">Generate Invoice</button>
             <button type="button" onclick="clearForm()">Clear Form</button>
+            <button type="button" onclick="exportConfig()" style="background-color: #2196F3;">Export Config</button>
+            <button type="button" onclick="importConfig()" style="background-color: #FF9800;">Import Config</button>
+            <input type="file" id="configImport" accept=".json" style="display: none;" onchange="handleImportFile(event)">
         </div>
     </div>
     
@@ -1013,6 +1016,148 @@
             }
             
             return result.trim() || 'Zero';
+        }
+
+        // Export configuration function
+        function exportConfig() {
+            const config = {
+                version: '1.0',
+                exportDate: new Date().toISOString(),
+                sellerInfo: {
+                    name: document.getElementById('sellerName').value,
+                    address1: document.getElementById('sellerAddress1').value,
+                    address2: document.getElementById('sellerAddress2').value,
+                    email: document.getElementById('sellerEmail').value,
+                    GSTIN: document.getElementById('sellerGSTIN').value,
+                    contact: document.getElementById('sellerContact').value,
+                    state: document.getElementById('sellerState').value,
+                    stateCode: document.getElementById('sellerStateCode').value
+                },
+                defaultInvoiceInfo: {
+                    reverseCharge: document.getElementById('reverseCharge').value,
+                    transportMode: document.getElementById('transportMode').value,
+                    vehicleNo: document.getElementById('vehicleNo').value,
+                    vendorCode: document.getElementById('vendorCode').value
+                },
+                bankDetails: {
+                    bankName: document.getElementById('bankName').value,
+                    branchAddress1: document.getElementById('branchAddress1').value,
+                    branchAddress2: document.getElementById('branchAddress2').value,
+                    accountNo: document.getElementById('accountNo').value,
+                    ifscCode: document.getElementById('ifscCode').value
+                },
+                signatureDetails: {
+                    signatoryName: document.getElementById('signatoryName').value,
+                    signatoryDesignation: document.getElementById('signatoryDesignation').value,
+                    signatureImage: document.getElementById('signaturePreview').src || ''
+                },
+                termsConditions: document.getElementById('termsConditions').value,
+                taxSettings: {
+                    defaultTaxRate: document.getElementById('taxRate').value,
+                    defaultTaxType: document.getElementById('taxType').value
+                }
+            };
+
+            const dataStr = JSON.stringify(config, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportName = 'invoice-config-' + new Date().toISOString().split('T')[0] + '.json';
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportName);
+            linkElement.click();
+        }
+
+        // Import configuration function
+        function importConfig() {
+            document.getElementById('configImport').click();
+        }
+
+        // Handle imported file
+        function handleImportFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const config = JSON.parse(e.target.result);
+                    
+                    // Validate config version
+                    if (!config.version) {
+                        alert('Invalid configuration file format');
+                        return;
+                    }
+
+                    // Import seller info
+                    if (config.sellerInfo) {
+                        document.getElementById('sellerName').value = config.sellerInfo.name || '';
+                        document.getElementById('sellerAddress1').value = config.sellerInfo.address1 || '';
+                        document.getElementById('sellerAddress2').value = config.sellerInfo.address2 || '';
+                        document.getElementById('sellerEmail').value = config.sellerInfo.email || '';
+                        document.getElementById('sellerGSTIN').value = config.sellerInfo.GSTIN || '';
+                        document.getElementById('sellerContact').value = config.sellerInfo.contact || '';
+                        document.getElementById('sellerState').value = config.sellerInfo.state || '';
+                        document.getElementById('sellerStateCode').value = config.sellerInfo.stateCode || '';
+                    }
+
+                    // Import default invoice info
+                    if (config.defaultInvoiceInfo) {
+                        document.getElementById('reverseCharge').value = config.defaultInvoiceInfo.reverseCharge || 'No';
+                        document.getElementById('transportMode').value = config.defaultInvoiceInfo.transportMode || '';
+                        document.getElementById('vehicleNo').value = config.defaultInvoiceInfo.vehicleNo || '';
+                        document.getElementById('vendorCode').value = config.defaultInvoiceInfo.vendorCode || '';
+                    }
+
+                    // Import bank details
+                    if (config.bankDetails) {
+                        document.getElementById('bankName').value = config.bankDetails.bankName || '';
+                        document.getElementById('branchAddress1').value = config.bankDetails.branchAddress1 || '';
+                        document.getElementById('branchAddress2').value = config.bankDetails.branchAddress2 || '';
+                        document.getElementById('accountNo').value = config.bankDetails.accountNo || '';
+                        document.getElementById('ifscCode').value = config.bankDetails.ifscCode || '';
+                    }
+
+                    // Import signature details
+                    if (config.signatureDetails) {
+                        document.getElementById('signatoryName').value = config.signatureDetails.signatoryName || '';
+                        document.getElementById('signatoryDesignation').value = config.signatureDetails.signatoryDesignation || '';
+                        
+                        if (config.signatureDetails.signatureImage) {
+                            document.getElementById('signaturePreview').src = config.signatureDetails.signatureImage;
+                            document.getElementById('signaturePreview').style.display = 'block';
+                            document.getElementById('uploadPrompt').style.display = 'none';
+                        }
+                    }
+
+                    // Import terms and conditions
+                    if (config.termsConditions !== undefined) {
+                        document.getElementById('termsConditions').value = config.termsConditions;
+                    }
+
+                    // Import tax settings
+                    if (config.taxSettings) {
+                        document.getElementById('taxRate').value = config.taxSettings.defaultTaxRate || '18';
+                        document.getElementById('taxType').value = config.taxSettings.defaultTaxType || 'IGST';
+                    }
+
+                    // Clear the file input for future imports
+                    event.target.value = '';
+                    
+                    alert('Configuration imported successfully!');
+                    
+                    // Recalculate totals after import
+                    calculateTotals();
+                    calculateTax();
+                    checkGSTType();
+                    
+                } catch (error) {
+                    alert('Error importing configuration: ' + error.message);
+                }
+            };
+            
+            reader.readAsText(file);
         }
     </script>
 </body>

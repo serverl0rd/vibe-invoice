@@ -386,6 +386,91 @@ async function runAllTests() {
             }
         });
 
+        // Test 17: Export/Import configuration
+        await runTest('Export/Import configuration', async () => {
+            // First clear and go back to editor
+            await page.click('#preview button:nth-child(2)');
+            await page.waitForSelector('#preview', { hidden: true });
+            
+            // Fill test data
+            await page.evaluate(() => {
+                document.getElementById('sellerName').value = 'Export Test Co';
+                document.getElementById('bankName').value = 'Test Bank Ltd';
+                document.getElementById('accountNo').value = '1234567890';
+                document.getElementById('taxRate').value = '15';
+            });
+            
+            // Test export functionality exists
+            const exportExists = await page.evaluate(() => {
+                return typeof exportConfig === 'function';
+            });
+            if (!exportExists) throw new Error('Export function not found');
+            
+            // Test import functionality exists
+            const importExists = await page.evaluate(() => {
+                return typeof handleImportFile === 'function' && typeof importConfig === 'function';
+            });
+            if (!importExists) throw new Error('Import functions not found');
+            
+            // Verify buttons exist
+            const exportButton = await page.$('button[onclick="exportConfig()"]');
+            const importButton = await page.$('button[onclick="importConfig()"]');
+            if (!exportButton || !importButton) throw new Error('Export/Import buttons not found');
+            
+            // Test import simulation
+            const importSuccess = await page.evaluate(() => {
+                const testConfig = {
+                    version: '1.0',
+                    sellerInfo: { name: 'Imported Test Co' },
+                    bankDetails: { bankName: 'Imported Bank', accountNo: '9876543210' },
+                    taxSettings: { defaultTaxRate: '20' }
+                };
+                
+                // Simulate file read
+                const mockEvent = {
+                    target: {
+                        files: [{
+                            text: () => Promise.resolve(JSON.stringify(testConfig))
+                        }],
+                        value: ''
+                    }
+                };
+                
+                // Mock FileReader
+                const OriginalFileReader = window.FileReader;
+                window.FileReader = function() {
+                    return {
+                        readAsText: function() {
+                            setTimeout(() => {
+                                this.onload({ target: { result: JSON.stringify(testConfig) } });
+                            }, 10);
+                        }
+                    };
+                };
+                
+                // Mock alert
+                let alertCalled = false;
+                window.alert = () => { alertCalled = true; };
+                
+                // Call import
+                handleImportFile(mockEvent);
+                
+                // Wait and check
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                        window.FileReader = OriginalFileReader;
+                        const success = 
+                            document.getElementById('sellerName').value === 'Imported Test Co' &&
+                            document.getElementById('bankName').value === 'Imported Bank' &&
+                            alertCalled;
+                        resolve(success);
+                    }, 100);
+                });
+            });
+            
+            if (!importSuccess) throw new Error('Import simulation failed');
+        });
+
     } catch (error) {
         console.error(`\n${colors.red}Fatal error during tests: ${error.message}${colors.reset}`);
     } finally {
