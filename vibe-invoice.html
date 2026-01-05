@@ -777,7 +777,7 @@
                 </div>
                 
                 <div style="text-align: center; border: 1px solid #000; border-top: 1px solid #000; margin-bottom: 0; display: flex; justify-content: center; align-items: center; height: 34px;">
-                    <h2 style="margin: 0; padding: 0; line-height: 1;">TAX INVOICE</h2>
+                    <h2 style="margin: 0; padding: 0; line-height: 1; text-decoration: none;">TAX INVOICE</h2>
                 </div>
                     <table style="border-collapse: collapse; width: 100%; margin-bottom: 0;">
                         <tr>
@@ -871,11 +871,14 @@
                             ${serviceRows}
                         </tbody>
                     </table>
-                </div>
-                
-                <div style="margin: 0; border-left: 1px solid #000; border-right: 1px solid #000; border-bottom: 0; border-top: 1px solid #000;">
-                    <p style="margin: 5px; font-weight: bold;">Total Invoice Amount in Words:</p>
-                    <p style="margin: 5px 5px 5px 5px;">${numberToWords(parseFloat(totalAfterTax))} Only</p>
+                    <table style="border-collapse: collapse; width: 100%; margin: 0;">
+                        <tr>
+                            <td style="border: 1px solid #000; border-top: 0; padding: 5px;">
+                                <p style="margin: 5px 0; font-weight: bold;">Total Invoice Amount in Words:</p>
+                                <p style="margin: 5px 0;">${numberToWords(parseFloat(totalAfterTax))} Only</p>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
                 
                 <div style="margin: 0; border-left: 1px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000; border-top: 1px solid #000;">
