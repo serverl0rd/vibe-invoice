@@ -1,0 +1,21 @@
+{
+  "name": "vibe-invoice-tests",
+  "version": "1.0.0",
+  "description": "Test suite for Vibe Invoice Generator",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report",
+    "test:ui": "playwright test --ui",
+    "install:playwright": "playwright install",
+    "test:puppeteer": "node puppeteer-tests.js",
+    "test:puppeteer:headed": "node puppeteer-tests.js --headed"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "puppeteer": "^24.34.0"
+  },
+  "author": "ServerLord",
+  "license": "MIT"
+}

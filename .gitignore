@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+
+# Test results
+test-results/
+playwright-report/
+test-results/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# Temporary files
+*.log
+*.tmp
+*.temp
+*.bak
+
+# Build outputs
+dist/
+build/
+
+# Keep all source files
+!*.html
+!*.js
+!*.md
+!*.json
+!*.sh
+!*.svg
