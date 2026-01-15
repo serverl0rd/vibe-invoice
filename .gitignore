@@ -1,11 +1,30 @@
 # Dependencies
 node_modules/
+package.json
+package-lock.json
 npm-debug.log*
 
-# Test results
+# Test files and results
 test-results/
+test-downloads/
 playwright-report/
-test-results/
+*test*.js
+*test*.html
+playwright*.js
+puppeteer*.js
+analyze-*.js
+
+# Test documentation
+PUPPETEER_TESTS.md
+PLAYWRIGHT_MCP_SETUP.md
+SETUP_INSTRUCTIONS.md
+HANDOVER_DOCUMENT.md
+
+# Shell scripts
+*.sh
+
+# Generated files
+*.pdf
 
 # OS files
 .DS_Store
@@ -27,11 +46,3 @@ Thumbs.db
 # Build outputs
 dist/
 build/
-
-# Keep all source files
-!*.html
-!*.js
-!*.md
-!*.json
-!*.sh
-!*.svg
